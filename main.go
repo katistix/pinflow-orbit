@@ -45,6 +45,7 @@ func main() {
 
 	// ROUTES
 	mux.Handle("GET /locations", AuthorizeMiddleware(http.HandlerFunc(getAllLocationsHandler)))
+	mux.Handle("GET /location", AuthorizeMiddleware(http.HandlerFunc(getLocationHandler)))
 	mux.Handle("POST /set", AuthorizeMiddleware(http.HandlerFunc(setLocationHandler)))
 
 	// Serve the API

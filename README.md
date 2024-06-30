@@ -18,6 +18,68 @@ To be able to use the service, the main server needs to authenticate the request
 
 Written in Go with the standard library.
 
-## API
+## RESTful API
 
-> Documentation is a work in progress.
+The API is designed to be simple and easy to use. It provides endpoints for querying and updating the courier location data.
+
+### Endpoints
+
+#### `GET /location?userId=<userId>`
+- Returns the latest location data for the given user.
+- Requires authentication using the shared secret key.
+- Returns a 404 if the user is not found.
+
+**Response example:**
+```json5
+{
+  "latitude": 12.345,
+  "longitude": 67.890,
+  "last_update": 1719736810 // Unix timestamp
+}
+```
+
+#### `POST /set`
+
+- Updates the location data for the given user.
+- Requires authentication using the shared secret key.
+- The request body should contain the following JSON data:
+  ```json5
+  {
+    "userId": "123",
+    "latitude": 12.345,
+    "longitude": 67.890
+  }
+  ```
+  
+- Returns a 200 if the data is updated successfully.
+- Returns a 400 if the request body is invalid.
+- Returns a 401 if the authentication fails.
+
+**Response example:**
+```json5
+{
+    "message": "Location updated"
+}
+```
+
+#### `GET /locations`
+
+- Returns the latest location data for all users.
+- Requires authentication using the shared secret key.
+- The response is a JSON object where the keys are the user IDs and the values are the location data.
+
+**Response example:**
+```json5
+{
+  "user_id_123": {
+    "latitude": 12.345,
+    "longitude": 67.890,
+    "last_update": 1719736810
+  },
+  "user_id_456": {
+    "latitude": 12.345,
+    "longitude": 67.890,
+    "last_update": 1719736810
+  }
+}
+```
