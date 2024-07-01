@@ -34,8 +34,6 @@ func setLocationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(req)
-
 	// Make sure the request body is valid
 	if req.UserId == "" {
 		http.Error(w, "Missing userId", http.StatusBadRequest)
@@ -53,6 +51,8 @@ func setLocationHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid longitude", http.StatusBadRequest)
 		return
 	}
+
+	fmt.Println("Request: ", req)
 
 	// Get the current time
 	now := time.Now().Unix()
@@ -104,4 +104,42 @@ func getAllLocationsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonData)
+}
+
+func deleteLocationHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse JSON request body
+	var req struct {
+		UserId string `json:"userId"`
+	}
+
+	// Check if the request body is empty
+	if r.Body == nil {
+		http.Error(w, "Please send a request body", http.StatusBadRequest)
+		return
+	}
+
+	// Check if the request body is too large
+	if r.ContentLength > 1024 {
+		http.Error(w, "Request body is too large", http.StatusRequestEntityTooLarge)
+		return
+	}
+
+	// Decode the JSON request
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Make sure the request body is valid
+	if req.UserId == "" {
+		http.Error(w, "Missing userId", http.StatusBadRequest)
+		return
+	}
+
+	// Delete the location from the store
+	store.DeleteLocation(req.UserId)
+
+	w.WriteHeader(http.StatusOK)
+	// Respond with a JSON message
+	json.NewEncoder(w).Encode(map[string]string{"message": "Location deleted"})
 }

@@ -47,6 +47,7 @@ func main() {
 	mux.Handle("GET /locations", AuthorizeMiddleware(http.HandlerFunc(getAllLocationsHandler)))
 	mux.Handle("GET /location", AuthorizeMiddleware(http.HandlerFunc(getLocationHandler)))
 	mux.Handle("POST /set", AuthorizeMiddleware(http.HandlerFunc(setLocationHandler)))
+	mux.Handle("POST /delete", AuthorizeMiddleware(http.HandlerFunc(deleteLocationHandler)))
 
 	// Serve the API
 	fmt.Println("Starting server on :8080")
