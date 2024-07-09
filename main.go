@@ -48,6 +48,7 @@ func main() {
 
 	// HEALTH CHECK
 	mux.Handle("GET /health", http.HandlerFunc(healthCheckHandler))
+	mux.Handle("GET /auth-health", AuthorizeMiddleware(http.HandlerFunc(healthCheckHandler)))
 
 	// ROUTES
 	mux.Handle("GET /locations", AuthorizeMiddleware(http.HandlerFunc(getAllLocationsHandler)))
