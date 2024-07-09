@@ -1,5 +1,7 @@
 # pinflow-orbit
 
+![Pinflow Orbit - In-memory geolocation database](/assets/banner.png)
+
 A versatile, in-memory geolocation database designed for real-time tracking and management of courier location data within the Pinflow platform.
 
 ## Overview
