@@ -25,4 +25,4 @@ jobs:
           push: true
           tags: |
             katistix/pinflow-orbit:latest
-            katistix/pinflow-orbit:$GITHUB_REF_NAME
+            katistix/pinflow-orbit:${{ github.ref }}
