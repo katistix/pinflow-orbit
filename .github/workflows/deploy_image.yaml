@@ -21,4 +21,4 @@ jobs:
       - name: Tag and push Docker image
         run: |
           docker tag katistix/pinflow-orbit:latest katistix/pinflow-orbit:$GITHUB_REF_NAME
-          docker push katistix/pinflow-orbit:$GITHUB_REF_NAME
+          docker push katistix/pinflow-orbit --all-tags
