@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
+}
+
 func setLocationHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse JSON request body
 	var req struct {

@@ -16,7 +16,21 @@ To be able to use the service, the main server needs to authenticate the request
 
 ### Tech Stack
 
-Written in Go with the standard library.
+Written in Go with the standard library. And built and run using Docker.
+
+
+## Building the Docker Image
+```bash
+docker build -t pinflow-orbit:[version_tag] .
+```
+
+## Running the Docker Container
+```bash
+docker run -p 8080:8080 --env-file .env.prod pinflow-orbit:[version_tag]
+```
+> Note: The environment variables are loaded from a `.env.prod` file. Make sure to create this file and pass it to the container.
+
+
 
 ## RESTful API
 

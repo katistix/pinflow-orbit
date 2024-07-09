@@ -31,10 +31,13 @@ var store *storage.LocationStore
 
 func main() {
 
-	// Load the .env file
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
+	// Only if not in production, load the .env file
+	if os.Getenv("ENV") != "production" {
+		err := godotenv.Load()
+		if err != nil {
+			fmt.Println("Error loading .env file")
+			os.Exit(1)
+		}
 	}
 
 	// Create a new ServeMux
@@ -42,6 +45,9 @@ func main() {
 
 	// Create a new LocationStore
 	store = storage.NewLocationStore()
+
+	// HEALTH CHECK
+	mux.Handle("GET /health", http.HandlerFunc(healthCheckHandler))
 
 	// ROUTES
 	mux.Handle("GET /locations", AuthorizeMiddleware(http.HandlerFunc(getAllLocationsHandler)))
