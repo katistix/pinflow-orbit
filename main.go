@@ -32,12 +32,9 @@ var store *storage.LocationStore
 func main() {
 
 	// Only if not in production, load the .env file
-	if os.Getenv("ENV") != "production" {
-		err := godotenv.Load()
-		if err != nil {
-			fmt.Println("Error loading .env file")
-			os.Exit(1)
-		}
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
 	}
 
 	// Create a new ServeMux
