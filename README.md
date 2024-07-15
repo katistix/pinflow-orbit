@@ -1,4 +1,4 @@
-# pinflow-orbit
+# Pinflow Orbit
 
 ![Pinflow Orbit - In-memory geolocation database](/assets/banner.png)
 
@@ -6,96 +6,214 @@ A versatile, in-memory geolocation database designed for real-time tracking and 
 
 ## Overview
 
-**Pinflow Orbit** is a microservice written in Go that stores realtime geolocation data in-memory and provides a RESTful API for querying and managing the data.
+**Pinflow Orbit** is a microservice written in Go that stores real-time geolocation data in-memory and provides a RESTful API for querying and managing the data.
 
 ### Main Objective
 
-It is primarily designed to store the live courier location data and provide a way for the main server to query and update the data using a RESTful API.
+It is primarily designed to store live courier location data and provide a way for the main server to query and update the data using a RESTful API.
 
 Orbit is designed to be a standalone service that can be deployed independently of the main Pinflow server.
 
-To be able to use the service, the main server needs to authenticate the requests using a shared secret key. (A simple API key is used for now)
+To use the service, the main server needs to authenticate requests using a shared secret key (a simple API key is used for now).
 
 ### Tech Stack
 
-Written in Go with the standard library. And built and run using Docker.
+Written in Go with the standard library. Built and run using Docker.
 
+## Getting Started
 
-## Building the Docker Image
+### Prerequisites
+
+- Go 1.22
+- Docker (optional, for containerized deployment)
+
+### Installation
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/katistix/pinflow-orbit.git
+    cd pinflow-orbit
+    ```
+
+2. Set up environment variables:
+
+    Create a `.env` file in the root of the project and add your API key:
+
+    ```env
+    API_KEY=your_api_key_here
+    ```
+
+### Running the Service
+
+#### Locally
+
+To run the service locally:
+
+1. Ensure you have the required Go version installed.
+2. Run the service:
+
+    ```bash
+    go run main.go
+    ```
+
+#### Using Docker
+
+To build and run the service using Docker:
+
+1. Build the Docker image:
+
+    ```bash
+    docker build -t pinflow-orbit .
+    ```
+
+2. Run the Docker container:
+
+    ```bash
+    docker run -d -p 8080:8080 --env-file .env pinflow-orbit
+    ```
+
+### API Endpoints
+
+The following endpoints are available:
+
+#### Health Check
+
+- **GET /health**
+
+    Checks if the service is running.
+
+    ```sh
+    curl -X GET http://localhost:8080/health
+    ```
+
+#### Authenticated Health Check
+
+- **GET /auth-health**
+
+    Checks if the service is running and requires authentication.
+
+    ```sh
+    curl -X GET http://localhost:8080/auth-health -H "Authorization: Bearer your_api_key_here"
+    ```
+
+#### Get All Locations
+
+- **GET /locations**
+
+    Retrieves all stored locations.
+
+    ```sh
+    curl -X GET http://localhost:8080/locations -H "Authorization: Bearer your_api_key_here"
+    ```
+
+#### Get Location
+
+- **GET /location**
+
+    Retrieves a location for a specific user.
+
+    Parameters:
+    - `userId`: The ID of the user whose location is being retrieved.
+
+    ```sh
+    curl -X GET "http://localhost:8080/location?userId=user1" -H "Authorization: Bearer your_api_key_here"
+    ```
+
+#### Set Location
+
+- **POST /set**
+
+    Sets or updates a location for a user.
+
+    Request Body:
+    ```json
+    {
+        "userId": "user1",
+        "longitude": 10.0,
+        "latitude": 20.0
+    }
+    ```
+
+    ```sh
+    curl -X POST http://localhost:8080/set -H "Authorization: Bearer your_api_key_here" -H "Content-Type: application/json" -d '{"userId": "user1", "longitude": 10.0, "latitude": 20.0}'
+    ```
+
+#### Delete Location
+
+- **POST /delete**
+
+    Deletes a location for a user.
+
+    Request Body:
+    ```json
+    {
+        "userId": "user1"
+    }
+    ```
+
+    ```sh
+    curl -X POST http://localhost:8080/delete -H "Authorization: Bearer your_api_key_here" -H "Content-Type: application/json" -d '{"userId": "user1"}'
+    ```
+
+### Testing
+
+#### Running Unit Tests
+
+To run the unit tests locally:
+
 ```bash
-docker build -t pinflow-orbit:[version_tag] .
+go test -v ./...
 ```
 
-## Running the Docker Container
-```bash
-docker run -p 8080:8080 --env-file .env.prod pinflow-orbit:[version_tag]
-```
-> Note: The environment variables are loaded from a `.env.prod` file. Make sure to create this file and pass it to the container.
+### Continuous Integration
 
+A GitHub Actions workflow is set up to run tests on every commit to the main branch. The workflow configuration is as follows:
 
+#### `.github/workflows/go.yml`
 
-## RESTful API
+```yaml
+name: Go
 
-The API is designed to be simple and easy to use. It provides endpoints for querying and updating the courier location data.
+on:
+  push:
+    branches: 
+      - master
+  pull_request:
+    branches: 
+      - master
 
-### Endpoints
+jobs:
+  test:
 
-#### `GET /location?userId=<userId>`
-- Returns the latest location data for the given user.
-- Requires authentication using the shared secret key.
-- Returns a 404 if the user is not found.
+    runs-on: ubuntu-latest
 
-**Response example:**
-```json5
-{
-  "latitude": 12.345,
-  "longitude": 67.890,
-  "last_update": 1719736810 // Unix timestamp
-}
-```
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-#### `POST /set`
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.22
 
-- Updates the location data for the given user.
-- Requires authentication using the shared secret key.
-- The request body should contain the following JSON data:
-  ```json5
-  {
-    "userId": "123",
-    "latitude": 12.345,
-    "longitude": 67.890
-  }
-  ```
-  
-- Returns a 200 if the data is updated successfully.
-- Returns a 400 if the request body is invalid.
-- Returns a 401 if the authentication fails.
+    - name: Get dependencies
+      run: go mod download
 
-**Response example:**
-```json5
-{
-    "message": "Location updated"
-}
+    - name: Run tests
+      run: go test -v ./...
 ```
 
-#### `GET /locations`
+### Contributing
 
-- Returns the latest location data for all users.
-- Requires authentication using the shared secret key.
-- The response is a JSON object where the keys are the user IDs and the values are the location data.
+We welcome contributions! Please follow these steps:
 
-**Response example:**
-```json5
-{
-  "user_id_123": {
-    "latitude": 12.345,
-    "longitude": 67.890,
-    "last_update": 1719736810
-  },
-  "user_id_456": {
-    "latitude": 12.345,
-    "longitude": 67.890,
-    "last_update": 1719736810
-  }
-}
-```
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/your-feature-name`).
+3. Make your changes and commit them (`git commit -am 'Add new feature'`).
+4. Push to the branch (`git push origin feature/your-feature-name`).
+5. Create a new Pull Request.
+
+### License
+
+This project is licensed under the MIT License.
